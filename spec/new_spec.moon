@@ -24,5 +24,5 @@ describe 'new()', ->
                 n, bf, err = nargs new value
                 assert.are.equal 2, n
                 assert.is.nil bf
-                expected_err = 'argument #1 must be function, got: %s'\format value_type
+                expected_err = 'argument #1 must be string, table, or function, got: %s'\format value_type
                 assert.are.equal expected_err, err

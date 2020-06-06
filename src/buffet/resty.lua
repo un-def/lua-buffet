@@ -115,7 +115,7 @@ _M.new = function(bytes)
     elseif bytes_type == 'string' then
         chunk = bytes
     else
-        return nil, str_format('argument #1 must be function, got: %s', bytes_type)
+        return nil, str_format('argument #1 must be string, table, or function, got: %s', bytes_type)
     end
     return setmetatable({
         _closed = false,
