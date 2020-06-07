@@ -1,0 +1,23 @@
+language: python
+
+env:
+  - LUA='lua 5.1'
+  - LUA='lua 5.2'
+  - LUA='lua 5.3'
+  - LUA='lua 5.4'
+  - LUA='luajit 2.0'
+  - LUA='luajit 2.1'
+
+jobs:
+  allow_failures:
+    - env: LUA='lua 5.4'
+
+install:
+  - pip install hererocks
+  - hererocks ~/luaenv --$LUA --luarocks latest
+  - source ~/luaenv/bin/activate
+  - make install-dev-deps
+
+script:
+  - make lint
+  - make test
