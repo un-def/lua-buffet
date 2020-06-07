@@ -100,7 +100,7 @@ describe 'receive(size)', ->
                     assert.are.equal exp_err, err
                     assert.are.equal exp_partial, partial
 
-    it 'should accept float-point number', ->
+    it 'should accept floating-point numbers', ->
         bf = new 'deadbeefdeadf00d'
         for {size, exp_n, exp_data, exp_err, exp_partial} in *{
             {2.1, 1, 'de'}
@@ -123,6 +123,18 @@ describe 'receive(size)', ->
             {3, nil, 'closed', 'd'}
         }
             n, data, err, partial = nargs bf\receive ' \t 5\r\n '
+            assert.are.equal exp_n, n
+            assert.are.equal exp_data, data
+            assert.are.equal exp_err, err
+            assert.are.equal exp_partial, partial
+
+    it 'should keep CR characters', ->
+        bf = new {'deadbe', 'ef\r', '\n', 'dead', '', 'f00d\r\n'}
+        for {exp_n, exp_data, exp_err, exp_partial} in *{
+            {1, 'deadbeef\r\nde'}
+            {3, nil, 'closed','adf00d\r\n'}
+        }
+            n, data, err, partial = nargs bf\receive 12
             assert.are.equal exp_n, n
             assert.are.equal exp_data, data
             assert.are.equal exp_err, err
