@@ -149,6 +149,9 @@ local _receive_until = function(bf, pattern, size)
             search_start = 1
         else
             search_start = #buffer - #pattern
+            if search_start < 1 then
+                search_start = 1
+            end
         end
         buffer = buffer .. chunk
         pattern_start, pattern_stop = _find_pattern(buffer, pattern, search_start, size)

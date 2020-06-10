@@ -180,3 +180,22 @@ describe 'without trailer', ->
                     assert.are.equal exp_data, data
                     assert.are.equal exp_err, err
                     assert.are.equal exp_partial, partial
+
+describe 'pattern longer than buffer value', ->
+    it ->
+        bf = new {'---', '-', '--', '-', '-deadf00d', '--------'}
+        iter = bf\receiveuntil '--------'
+        for {exp_n, exp_data, exp_err, exp_partial} in *{
+            {1, ''}
+            {3, nil, nil, nil}
+            {1, 'dead'}
+            {1, 'f00d'}
+            {3, nil, nil, nil}
+            {3, nil, 'closed', ''}
+            {2, nil, 'closed'}
+        }
+            n, data, err, partial = nargs iter 4
+            assert.are.equal exp_n, n
+            assert.are.equal exp_data, data
+            assert.are.equal exp_err, err
+            assert.are.equal exp_partial, partial
