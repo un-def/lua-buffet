@@ -50,7 +50,7 @@ end
 
 local _store_chunk = function(bf, chunk)
     if bf._chunk then
-        return error('buffet already has a chunk')
+        return error('buffet already has a chunk', 0)
     end
     bf._chunk = chunk
 end
@@ -66,7 +66,7 @@ end
 local _receive_size = function(bf, size)
     size = math_floor(size)
     if size < 0 then
-        return error(ERR_RECEIVE_BAD_PATTERN)
+        return error(ERR_RECEIVE_BAD_PATTERN, 0)
     end
     if size == 0 then
         return ''
@@ -111,14 +111,14 @@ mt.receive = function(self, ...)
         else
             pattern = tonumber(pattern)
             if not pattern then
-                return error(ERR_RECEIVE_BAD_PATTERN)
+                return error(ERR_RECEIVE_BAD_PATTERN, 0)
             end
             return _receive_size(self, pattern)
         end
     elseif pattern_type == 'number' then
         return _receive_size(self, pattern)
     end
-    return error(ERR_RECEIVE_BAD_PATTERN)
+    return error(ERR_RECEIVE_BAD_PATTERN, 0)
 end
 
 local _find_pattern = function(str, pattern, search_start, size)
@@ -179,7 +179,7 @@ local _normalize_receivenutil_iterator_size_arg = function(...)
     end
     if size_type ~= 'number' then
         return error(str_format(
-            'bad argument #1 to iterator (number expected, got %s)', size_type), 2)
+            'bad argument #1 to iterator (number expected, got %s)', size_type), 0)
     end
     if size <= 0 then
         return nil
@@ -215,7 +215,7 @@ mt.receiveuntil = function(self, ...)
         return nil, ERR_CLOSED
     end
     if select('#', ...) == 0 then
-        return error('expecting 2 or 3 arguments (including the object), but got 1')
+        return error('expecting 2 or 3 arguments (including the object), but got 1', 0)
     end
     local pattern = ...
     local pattern_type = type(pattern)
@@ -223,7 +223,7 @@ mt.receiveuntil = function(self, ...)
         pattern = tostring(pattern)
     elseif pattern_type ~= 'string' then
         return error(str_format(
-            "bad argument #2 to 'receiveuntil' (string expected, got %s)", pattern_type))
+            "bad argument #2 to 'receiveuntil' (string expected, got %s)", pattern_type), 0)
     end
     if pattern == '' then
         return nil, 'pattern is empty'
