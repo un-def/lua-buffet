@@ -25,8 +25,8 @@ The word “buffet” is a portmanteau of “**buff**er” and “sock**et**”.
     * [x] `:receive(size)`
   * [ ] `:receiveany`
   * [ ] `:receiveuntil`
-    * [ ] `reader()`
-    * [ ] `reader(size)`
+    * [x] `reader()`
+    * [x] `reader(size)`
     * [ ] `inclusive` option
   * [x] `:close`
   * [ ] `:settimeout`

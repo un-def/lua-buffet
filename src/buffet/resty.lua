@@ -1,3 +1,4 @@
+local str_find = string.find
 local str_format = string.format
 local str_sub = string.sub
 local table_concat = table.concat
@@ -6,7 +7,7 @@ local math_floor = math.floor
 
 local ERR_CLOSED = 'closed'
 local ERR_NOT_IMPL = 'not implemented'
-local ERR_BAD_PATTERN = "bad argument #2 to 'receive' (bad pattern argument)"
+local ERR_RECEIVE_BAD_PATTERN = "bad argument #2 to 'receive' (bad pattern argument)"
 
 local _M = {
     _VERSION = '0.1.0.dev0',
@@ -15,7 +16,7 @@ local _M = {
 local mt = {}
 mt.__index = mt
 
-local _get_table_reader = function(tbl)
+local _get_table_iterator = function(tbl)
     local index = 0
     return function()
         index = index + 1
@@ -23,12 +24,35 @@ local _get_table_reader = function(tbl)
     end
 end
 
-local _get_next_chunk = function(self)
-    local chunk, err = self._iterator()
-    if err then
-        self._iterator_error = err
+local _get_chunk = function(bf)
+    local chunk = bf._chunk
+    if chunk then
+        bf._chunk = nil
+        return chunk
     end
-    return chunk
+    local iterator = bf._iterator
+    if not iterator then
+        return nil
+    end
+    local err
+    while true do
+        chunk, err = iterator()
+        if not chunk then
+            if err then
+                bf._iterator_error = err
+            end
+            return nil
+        elseif chunk ~= '' then
+            return chunk
+        end
+    end
+end
+
+local _store_chunk = function(bf, chunk)
+    if bf._chunk then
+        return error('buffet already has a chunk')
+    end
+    bf._chunk = chunk
 end
 
 local _receive_line = function(_)
@@ -39,100 +63,35 @@ local _receive_all = function(_)
     return nil, ERR_NOT_IMPL
 end
 
-local _receive_size = function(self, size)
+local _receive_size = function(bf, size)
     size = math_floor(size)
     if size < 0 then
-        return nil, ERR_BAD_PATTERN
+        return error(ERR_RECEIVE_BAD_PATTERN)
     end
     if size == 0 then
         return ''
     end
     local have_bytes = 0
-    local chunk = self._chunk
-    local chunk_remainder = nil
-    local chunk_len
-    -- maybe we already have enough bytes in current chunk
-    if chunk then
-        chunk_len = #chunk
-        local last_index = self._last_index
-        local new_last_index = last_index + size
-        if new_last_index < chunk_len then
-            self._last_index = new_last_index
-            return str_sub(chunk, last_index + 1, new_last_index)
-        elseif new_last_index == chunk_len then
-            self._chunk = nil
-            return str_sub(chunk, last_index + 1)
-        else
-            self._chunk = nil
-            chunk_remainder = str_sub(chunk, last_index + 1)
-            have_bytes = #chunk_remainder
-        end
-    end
-    -- buffet constructed from string has no iterator
-    if not self._iterator then
-        self:close()
-        return nil, ERR_CLOSED, chunk_remainder or ''
-    end
-    -- we don't have enough bytes, going to iterate
-    local buffer
-    if chunk_remainder then
-        buffer = {chunk_remainder}
-    else
-        buffer = {}
-    end
+    local chunk, chunk_len
+    local buffer = {}
     while true do
-        chunk = _get_next_chunk(self)
+        chunk = _get_chunk(bf)
         if not chunk then
-            self:close()
+            bf:close()
             return nil, ERR_CLOSED, table_concat(buffer)
         end
         chunk_len = #chunk
-        if chunk_len then
-            have_bytes = have_bytes + chunk_len
-            if have_bytes == size then
-                table_insert(buffer, chunk)
-                return table_concat(buffer)
-            elseif have_bytes > size then
-                self._chunk = chunk
-                local last_index = chunk_len - have_bytes + size
-                self._last_index = last_index
-                table_insert(buffer, str_sub(chunk, 1, last_index))
-                return table_concat(buffer)
-            end
+        have_bytes = have_bytes + chunk_len
+        if have_bytes == size then
+            table_insert(buffer, chunk)
+            return table_concat(buffer)
+        elseif have_bytes > size then
+            _store_chunk(bf, str_sub(chunk, size - have_bytes))
+            table_insert(buffer, str_sub(chunk, 1, size - have_bytes - 1))
+            return table_concat(buffer)
         end
         table_insert(buffer, chunk)
     end
-end
-
-_M.new = function(bytes)
-    local iterator = nil
-    local chunk = nil
-    local bytes_type = type(bytes)
-    if bytes_type == 'function' then
-        iterator = bytes
-    elseif bytes_type == 'table' then
-        iterator = _get_table_reader(bytes)
-    elseif bytes_type == 'string' then
-        chunk = bytes
-    else
-        return nil, str_format('argument #1 must be string, table, or function, got: %s', bytes_type)
-    end
-    return setmetatable({
-        _closed = false,
-        _iterator = iterator,
-        _chunk = chunk,
-        _last_index = 0,
-    }, mt)
-end
-
-mt.close = function(self)
-    if self._closed then
-        return nil, ERR_CLOSED
-    end
-    self._closed = true
-    self._iterator = nil
-    self._chunk = nil
-    return 1
 end
 
 mt.receive = function(self, ...)
@@ -152,14 +111,154 @@ mt.receive = function(self, ...)
         else
             pattern = tonumber(pattern)
             if not pattern then
-                return nil, ERR_BAD_PATTERN
+                return error(ERR_RECEIVE_BAD_PATTERN)
             end
             return _receive_size(self, pattern)
         end
     elseif pattern_type == 'number' then
         return _receive_size(self, pattern)
     end
-    return nil, ERR_BAD_PATTERN
+    return error(ERR_RECEIVE_BAD_PATTERN)
+end
+
+local _find_pattern = function(str, pattern, search_start, size)
+    if size then
+        local search_stop = size + #pattern
+        if #str > search_stop then
+            str = str_sub(str, 1, search_stop)
+        end
+    end
+    return str_find(str, pattern, search_start, true)
+end
+
+local _receive_until = function(bf, pattern, size)
+    local buffer = ''
+    local chunk
+    local pattern_start, pattern_stop
+    local search_start
+    while true do
+        chunk = _get_chunk(bf)
+        if not chunk then
+            if size and #buffer > size then
+                _store_chunk(bf, str_sub(buffer, size + 1))
+                return str_sub(buffer, 1, size), false, false
+            end
+            return buffer, true, false
+        end
+        if not search_start then
+            search_start = 1
+        else
+            search_start = #buffer - #pattern
+        end
+        buffer = buffer .. chunk
+        pattern_start, pattern_stop = _find_pattern(buffer, pattern, search_start, size)
+        if pattern_start then
+            if #buffer > pattern_stop then
+                _store_chunk(bf, str_sub(buffer, pattern_stop + 1))
+            end
+            return str_sub(buffer, 1, pattern_start - 1), false, true
+        end
+        if size and #buffer > size + #pattern then
+            _store_chunk(bf, str_sub(buffer, size + 1))
+            return str_sub(buffer, 1, size), false, false
+        end
+    end
+end
+
+local _normalize_receivenutil_iterator_size_arg = function(...)
+    if select('#', ...) == 0 then
+        return nil
+    end
+    local size = ...
+    local size_type = type(size)
+    if size_type == 'string' then
+        size = tonumber(size)
+        if size then
+            size_type = 'number'
+        end
+    end
+    if size_type ~= 'number' then
+        return error(str_format(
+            'bad argument #1 to iterator (number expected, got %s)', size_type), 2)
+    end
+    if size <= 0 then
+        return nil
+    end
+    return math_floor(size)
+end
+
+local _get_receivenutil_iterator = function(bf, pattern)
+    local emit_nil_on_next_call = false
+    return function(...)
+        if bf._closed then
+            return nil, ERR_CLOSED
+        end
+        if emit_nil_on_next_call then
+            emit_nil_on_next_call = false
+            return nil, nil, nil
+        end
+        local size = _normalize_receivenutil_iterator_size_arg(...)
+        local data, done, found = _receive_until(bf, pattern, size)
+        if size and found then
+            emit_nil_on_next_call = true
+        end
+        if not done then
+            return data
+        end
+        bf:close()
+        return nil, ERR_CLOSED, data
+    end
+end
+
+mt.receiveuntil = function(self, ...)
+    if self._closed then
+        return nil, ERR_CLOSED
+    end
+    if select('#', ...) == 0 then
+        return error('expecting 2 or 3 arguments (including the object), but got 1')
+    end
+    local pattern = ...
+    local pattern_type = type(pattern)
+    if pattern_type == 'number' then
+        pattern = tostring(pattern)
+    elseif pattern_type ~= 'string' then
+        return error(str_format(
+            "bad argument #2 to 'receiveuntil' (string expected, got %s)", pattern_type))
+    end
+    if pattern == '' then
+        return nil, 'pattern is empty'
+    end
+    return _get_receivenutil_iterator(self, pattern)
+end
+
+mt.close = function(self)
+    if self._closed then
+        return nil, ERR_CLOSED
+    end
+    self._closed = true
+    self._iterator = nil
+    self._chunk = nil
+    return 1
+end
+
+_M.new = function(bytes)
+    local iterator = nil
+    local chunk = nil
+    local bytes_type = type(bytes)
+    if bytes_type == 'function' then
+        iterator = bytes
+    elseif bytes_type == 'table' then
+        iterator = _get_table_iterator(bytes)
+    elseif bytes_type == 'string' then
+        chunk = bytes
+    else
+        return nil, str_format('argument #1 must be string, table, or function, got: %s', bytes_type)
+    end
+    return setmetatable({
+        _closed = false,
+        _iterator = iterator,
+        _chunk = chunk,
+    }, mt)
 end
 
 return _M

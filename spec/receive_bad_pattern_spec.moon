@@ -1,9 +1,9 @@
 import new from require 'buffet.resty'
 
 
-describe 'receive()', ->
+describe 'receive(pattern)', ->
 
-    describe 'should return error if bad pattern:', ->
+    describe 'should raise error if bad pattern:', ->
         for {pattern, msg} in *{
             {nil, 'nil'}
             {'foo', 'unsupported string pattern'}
@@ -12,7 +12,6 @@ describe 'receive()', ->
         }
             it msg, ->
                 bf = new 'deadbeef'
-                n, chunk, err = nargs bf\receive pattern
-                assert.are.equal 2, n
-                assert.is.nil chunk
+                ok, err = pcall bf\receive, pattern
+                assert.is.false, ok
                 assert.are.equal "bad argument #2 to 'receive' (bad pattern argument)", err

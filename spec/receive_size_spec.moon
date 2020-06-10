@@ -1,6 +1,13 @@
 import new from require 'buffet.resty'
 
 
+get_buffet = (input) ->
+    if type(input) == 'function'
+        new input!
+    else
+        new input
+
+
 describe 'receive(size)', ->
 
     it 'should return error if closed', ->
@@ -11,16 +18,15 @@ describe 'receive(size)', ->
         assert.is.nil data
         assert.are.equal 'closed', err
 
-    describe 'should return error if size is negative', ->
+    describe 'should raise error if size is negative', ->
         for {size, msg} in *{
             {-1, 'number'}
             {'-1', 'number-like string'}
         }
             it msg, ->
                 bf = new 'deadbeef'
-                n, data, err = nargs bf\receive size
-                assert.are.equal 2, n
-                assert.is.nil data
+                ok, err = pcall bf\receive, size
+                assert.is.false, ok
                 assert.are.equal "bad argument #2 to 'receive' (bad pattern argument)", err
 
     it 'should return empty string if size = 0 unless closed', ->
@@ -42,12 +48,6 @@ describe 'receive(size)', ->
         ->
             index += 1
             input_table[index]
-
-    get_buffet = (input) ->
-        if type(input) == 'function'
-            new input!
-        else
-            new input
 
     for {input, msg} in *{
         {input_string, 'from string'}
