@@ -13,7 +13,7 @@ describe 'receive(size)', ->
     it 'should return error if closed', ->
         bf = new 'deadbeef'
         bf\close!
-        n, data, err = nargs bf\receive!
+        n, data, err = nargs bf\receive 4
         assert.are.equal 2, n
         assert.is.nil data
         assert.are.equal 'closed', err
