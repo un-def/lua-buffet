@@ -21,7 +21,7 @@ The word “buffet” is a portmanteau of “**buff**er” and “sock**et**”.
   * [ ] `:receive`
     * [ ] `:receive()`
     * [ ] `:receive('*l')`
-    * [ ] `:receive('*a')`
+    * [x] `:receive('*a')`
     * [x] `:receive(size)`
   * [ ] `:receiveany`
   * [ ] `:receiveuntil`

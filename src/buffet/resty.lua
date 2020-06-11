@@ -51,6 +51,9 @@ local _store_chunk = function(bf, chunk)
     if bf._chunk then
         return error('buffet already has a chunk', 0)
     end
+    if chunk == '' then
+        return
+    end
     bf._chunk = chunk
 end
 
@@ -58,11 +61,23 @@ local _receive_line = function(_)
     return nil, ERR_NOT_IMPL
 end
 
-local _receive_all = function(_)
-    return nil, ERR_NOT_IMPL
+local _receive_all = function(bf)
+    if bf._closed then
+        return ''
+    end
+    local buffer = {}
+    repeat
+        local chunk = _get_chunk(bf)
+        table_insert(buffer, chunk)
+    until not chunk
+    bf:close()
+    return table_concat(buffer)
 end
 
 local _receive_size = function(bf, size)
+    if bf._closed then
+        return nil, ERR_CLOSED
+    end
     size = math_floor(size)
     if size < 0 then
         return error(ERR_RECEIVE_BAD_PATTERN, 0)
@@ -91,9 +106,6 @@ local _receive_size = function(bf, size)
 end
 
 mt.receive = function(self, ...)
-    if self._closed then
-        return nil, ERR_CLOSED
-    end
     if select('#', ...) == 0 then
         return _receive_line(self)
     end
