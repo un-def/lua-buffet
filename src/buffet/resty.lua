@@ -34,9 +34,8 @@ local _get_chunk = function(bf)
     if not iterator then
         return nil
     end
-    local err
     while true do
-        chunk, err = iterator()
+        local chunk, err = iterator()   -- luacheck: ignore 421
         if not chunk then
             if err then
                 bf._iterator_error = err
@@ -67,21 +66,18 @@ local _receive_size = function(bf, size)
     size = math_floor(size)
     if size < 0 then
         return error(ERR_RECEIVE_BAD_PATTERN, 0)
-    end
-    if size == 0 then
+    elseif size == 0 then
         return ''
     end
     local have_bytes = 0
-    local chunk, chunk_len
     local buffer = {}
     while true do
-        chunk = _get_chunk(bf)
+        local chunk = _get_chunk(bf)
         if not chunk then
             bf:close()
             return nil, ERR_CLOSED, table_concat(buffer)
         end
-        chunk_len = #chunk
-        have_bytes = have_bytes + chunk_len
+        have_bytes = have_bytes + #chunk
         if have_bytes == size then
             table_insert(buffer, chunk)
             return table_concat(buffer)
@@ -133,11 +129,8 @@ end
 
 local _receive_until = function(bf, pattern, size)
     local buffer = ''
-    local chunk
-    local pattern_start, pattern_stop
-    local search_start
     while true do
-        chunk = _get_chunk(bf)
+        local chunk = _get_chunk(bf)
         if not chunk then
             if size and #buffer > size then
                 _store_chunk(bf, str_sub(buffer, size + 1))
@@ -145,16 +138,12 @@ local _receive_until = function(bf, pattern, size)
             end
             return buffer, true, false
         end
-        if not search_start then
+        local search_start = #buffer - #pattern
+        if search_start < 1 then
             search_start = 1
-        else
-            search_start = #buffer - #pattern
-            if search_start < 1 then
-                search_start = 1
-            end
         end
         buffer = buffer .. chunk
-        pattern_start, pattern_stop = _find_pattern(buffer, pattern, search_start, size)
+        local pattern_start, pattern_stop = _find_pattern(buffer, pattern, search_start, size)
         if pattern_start then
             if #buffer > pattern_stop then
                 _store_chunk(bf, str_sub(buffer, pattern_stop + 1))
