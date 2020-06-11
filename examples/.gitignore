@@ -1,0 +1,3 @@
+modules/
+nginx/*
+!nginx/nginx.conf
