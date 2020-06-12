@@ -14,19 +14,19 @@ The word “buffet” is a portmanteau of “**buff**er” and “sock**et**”.
 
 #### `ngx.socket.tcp`
 
-  * [x] constructor  (`ngx.socket.tcp` ~ `buffet.resty.new`)
+  * [x] constructor (`ngx.socket.tcp` ~ `buffet.resty.new`)
   * [ ] `:connect`
   * [ ] `:sslhandshake`
   * [ ] `:send`
-  * [ ] `:receive`
-    * [ ] `:receive()`
-    * [ ] `:receive('*l')`
+  * [x] `:receive`
+    * [x] `:receive()`
+    * [x] `:receive('*l')`
     * [x] `:receive('*a')`
     * [x] `:receive(size)`
   * [ ] `:receiveany`
   * [ ] `:receiveuntil`
-    * [x] `reader()`
-    * [x] `reader(size)`
+    * [x] `iterator()`
+    * [x] `iterator(size)`
     * [ ] `inclusive` option
   * [x] `:close`
   * [ ] `:settimeout`

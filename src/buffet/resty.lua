@@ -1,12 +1,21 @@
-local str_find = string.find
-local str_format = string.format
-local str_sub = string.sub
-local table_concat = table.concat
-local table_insert = table.insert
+local error = error
+local select = select
+local setmetatable = setmetatable
+local tonumber = tonumber
+local tostring = tostring
+local type = type
+
 local math_floor = math.floor
 
+local str_find = string.find
+local str_format = string.format
+local str_gsub = string.gsub
+local str_sub = string.sub
+
+local table_concat = table.concat
+local table_insert = table.insert
+
 local ERR_CLOSED = 'closed'
-local ERR_NOT_IMPL = 'not implemented'
 local ERR_RECEIVE_BAD_PATTERN = "bad argument #2 to 'receive' (bad pattern argument)"
 
 local _M = {
@@ -57,8 +66,30 @@ local _store_chunk = function(bf, chunk)
     bf._chunk = chunk
 end
 
-local _receive_line = function(_)
-    return nil, ERR_NOT_IMPL
+local _remove_cr = function(str)
+    str = str_gsub(str, '\r', '')
+    return str
+end
+
+local _receive_line = function(bf)
+    if bf._closed then
+        return nil, ERR_CLOSED
+    end
+    local buffer = {}
+    while true do
+        local chunk = _get_chunk(bf)
+        if not chunk then
+            bf:close()
+            return nil, ERR_CLOSED, _remove_cr(table_concat(buffer))
+        end
+        local lf_at = str_find(chunk, '\n', 1, true)
+        if lf_at then
+            table_insert(buffer, str_sub(chunk, 1, lf_at - 1))
+            _store_chunk(bf, str_sub(chunk, lf_at + 1))
+            return _remove_cr(table_concat(buffer))
+        end
+        table_insert(buffer, chunk)
+    end
 end
 
 local _receive_all = function(bf)
@@ -66,10 +97,13 @@ local _receive_all = function(bf)
         return ''
     end
     local buffer = {}
-    repeat
+    while true do
         local chunk = _get_chunk(bf)
+        if not chunk then
+            break
+        end
         table_insert(buffer, chunk)
-    until not chunk
+    end
     bf:close()
     return table_concat(buffer)
 end
@@ -245,18 +279,18 @@ mt.close = function(self)
     return 1
 end
 
-_M.new = function(bytes)
+_M.new = function(data)
     local iterator = nil
     local chunk = nil
-    local bytes_type = type(bytes)
-    if bytes_type == 'function' then
-        iterator = bytes
-    elseif bytes_type == 'table' then
-        iterator = _get_table_iterator(bytes)
-    elseif bytes_type == 'string' then
-        chunk = bytes
+    local data_type = type(data)
+    if data_type == 'function' then
+        iterator = data
+    elseif data_type == 'table' then
+        iterator = _get_table_iterator(data)
+    elseif data_type == 'string' then
+        chunk = data
     else
-        return nil, str_format('argument #1 must be string, table, or function, got: %s', bytes_type)
+        return nil, str_format('argument #1 must be string, table, or function, got: %s', data_type)
     end
     return setmetatable({
         _closed = false,
