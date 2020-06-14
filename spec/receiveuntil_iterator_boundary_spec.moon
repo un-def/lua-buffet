@@ -24,9 +24,11 @@ describe 'receiveuntil() iterator boundary cases:', ->
                         for {exp_n, exp_data, exp_err, exp_partial} in *{
                             {1, 'dead'}
                             {1, 'beef'}
+                            {1, ''}
                             {3, nil, nil, nil}
                             {1, 'dead'}
                             {1, 'f00d'}
+                            {1, ''}
                             {3, nil, nil, nil}
                             {1, 'trai'}
                             {3, nil, 'closed', 'ler'}
@@ -80,9 +82,11 @@ describe 'receiveuntil() iterator boundary cases:', ->
                     for {exp_n, exp_data, exp_err, exp_partial} in *{
                         {1, 'dead'}
                         {1, 'beef'}
+                        {1, ''}
                         {3, nil, nil, nil}
                         {1, 'dead'}
                         {1, 'f00d'}
+                        {1, ''}
                         {3, nil, nil, nil}
                         {1, 'trai'}
                         {3, nil, 'closed', 'ler'}
@@ -136,9 +140,11 @@ describe 'receiveuntil() iterator boundary cases:', ->
                         for {exp_n, exp_data, exp_err, exp_partial} in *{
                             {1, 'd'}, {1, 'e'}, {1, 'a'}, {1, 'd'}
                             {1, 'b'}, {1, 'e'}, {1, 'e'}, {1, 'f'}
+                            {1, ''}
                             {3, nil, nil, nil}
                             {1, 'd'}, {1, 'e'}, {1, 'a'}, {1, 'd'}
                             {1, 'f'}, {1, '0'}, {1, '0'}, {1, 'd'}
+                            {1, ''}
                             {3, nil, nil, nil}
                             {3, nil, 'closed', ''}
                             {2, nil, 'closed'}
@@ -167,9 +173,11 @@ describe 'receiveuntil() iterator boundary cases:', ->
                     for {exp_n, exp_data, exp_err, exp_partial} in *{
                         {1, 'dead'}
                         {1, 'beef'}
+                        {1, ''}
                         {3, nil, nil, nil}
                         {1, 'dead'}
                         {1, 'f00d'}
+                        {1, ''}
                         {3, nil, nil, nil}
                         {3, nil, 'closed', ''}
                         {2, nil, 'closed'}
@@ -189,6 +197,7 @@ describe 'receiveuntil() iterator boundary cases:', ->
             {3, nil, nil, nil}
             {1, 'dead'}
             {1, 'f00d'}
+            {1, ''}
             {3, nil, nil, nil}
             {3, nil, 'closed', ''}
             {2, nil, 'closed'}

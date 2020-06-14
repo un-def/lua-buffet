@@ -163,17 +163,19 @@ mt.receive = function(self, ...)
     return error(ERR_RECEIVE_BAD_PATTERN, 0)
 end
 
-local _find_pattern = function(str, pattern, search_start, size)
-    if size then
-        local search_stop = size + #pattern
-        if #str > search_stop then
-            str = str_sub(str, 1, search_stop)
-        end
+local _find_pattern = function(str, pattern, search_start, search_stop)
+    if search_stop and #str > search_stop then
+        str = str_sub(str, 1, search_stop)
     end
     return str_find(str, pattern, search_start, true)
 end
 
-local _receive_until = function(bf, pattern, size)
+local _receive_until = function(bf, pattern, inclusive, size)
+    local pattern_len = #pattern
+    local search_stop = nil
+    if size then
+        search_stop = size + pattern_len - 1
+    end
     local buffer = ''
     while true do
         local chunk = _get_chunk(bf)
@@ -184,19 +186,25 @@ local _receive_until = function(bf, pattern, size)
             end
             return buffer, true, false
         end
-        local search_start = #buffer - #pattern
+        local search_start = #buffer - pattern_len
         if search_start < 1 then
             search_start = 1
         end
         buffer = buffer .. chunk
-        local pattern_start, pattern_stop = _find_pattern(buffer, pattern, search_start, size)
+        local pattern_start, pattern_stop = _find_pattern(buffer, pattern, search_start, search_stop)
         if pattern_start then
             if #buffer > pattern_stop then
                 _store_chunk(bf, str_sub(buffer, pattern_stop + 1))
             end
-            return str_sub(buffer, 1, pattern_start - 1), false, true
+            local stop
+            if inclusive then
+                stop = pattern_stop
+            else
+                stop = pattern_start - 1
+            end
+            return str_sub(buffer, 1, stop), false, true
         end
-        if size and #buffer > size + #pattern then
+        if search_stop and #buffer > search_stop then
             _store_chunk(bf, str_sub(buffer, size + 1))
             return str_sub(buffer, 1, size), false, false
         end
@@ -225,7 +233,7 @@ local _normalize_receivenutil_iterator_size_arg = function(...)
     return math_floor(size)
 end
 
-local _get_receivenutil_iterator = function(bf, pattern)
+local _get_receivenutil_iterator = function(bf, pattern, inclusive)
     local emit_nil_on_next_call = false
     return function(...)
         if bf._closed then
@@ -236,7 +244,7 @@ local _get_receivenutil_iterator = function(bf, pattern)
             return nil, nil, nil
         end
         local size = _normalize_receivenutil_iterator_size_arg(...)
-        local data, done, found = _receive_until(bf, pattern, size)
+        local data, done, found = _receive_until(bf, pattern, inclusive, size)
         if size and found then
             emit_nil_on_next_call = true
         end

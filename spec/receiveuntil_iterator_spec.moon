@@ -89,10 +89,13 @@ describe 'receiveuntil()', ->
             for {exp_n, exp_data, exp_err, exp_partial} in *{
                 {1, 'dead'}
                 {1, 'beef'}
+                {1, ''}
                 {3, nil, nil, nil}
                 {1, 'dead'}
+                {1, ''}
                 {3, nil, nil, nil}
                 {1, 'f00d'}
+                {1, ''}
                 {3, nil, nil, nil}
                 {1, 'trai'}
                 {3, nil, 'closed', 'ler'}
@@ -256,9 +259,11 @@ describe 'receiveuntil()', ->
                     for {exp_n, exp_data, exp_err, exp_partial} in *{
                         {1, 'dead'}
                         {1, 'beef'}
+                        {1, ''}
                         {3, nil, nil, nil}
                         {1, 'dead'}
                         {1, 'f00d'}
+                        {1, ''}
                         {3, nil, nil, nil}
                         {1, 'trai'}
                         {3, nil, 'closed', 'ler'}

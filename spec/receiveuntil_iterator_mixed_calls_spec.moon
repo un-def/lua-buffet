@@ -9,11 +9,13 @@ describe 'receiveuntil() iterator mixed calls cases:', ->
         for {size, exp_n, exp_data, exp_err, exp_partial} in *{
             {4, 1, 'dead'}
             {4, 1, 'beef'}
-            {nil, 3, nil, nil, nil}
+            {nil, 1, ''}
             {4, 1, 'dead'}
+            {4, 1, ''}
             {1, 3, nil, nil, nil}
             {4, 1, 'f00d'}
-            {4, 3, nil, nil, nil}
+            {4, 1, ''}
+            {nil, 3, nil, nil, nil}
             {nil, 3, nil, 'closed', 'trailer'}
         }
             local n, data, err, partial
