@@ -1,6 +1,20 @@
 import new from require 'buffet.resty'
 
 
+describe 'receiveuntil()', ->
+
+    it 'should raise error if too few args', ->
+        bf = new 'deadbeef'
+        ok, err = pcall bf.receiveuntil, bf
+        assert.is.false, ok
+        assert.are.equal 'expecting 2 or 3 arguments (including the object), but got 1', err
+
+    it 'should raise error if too many args', ->
+        bf = new 'deadbeef'
+        ok, err = pcall bf.receiveuntil, bf, '--', {}, true
+        assert.is.false, ok
+        assert.are.equal 'expecting 2 or 3 arguments (including the object), but got 4', err
+
 describe 'receiveuntil(pattern)', ->
 
     it 'should convert pattern numeric value to string', ->
@@ -37,3 +51,30 @@ describe 'receiveuntil(pattern)', ->
         assert.are.equal n, 2
         assert.is.nil iter
         assert.are.equal 'pattern is empty', err
+
+describe 'receiveuntil(pattern, options)', ->
+
+    describe 'should raise error if bad options:', ->
+        for {options, exp_err} in *{
+            {nil, "bad argument #3 to 'receiveuntil' (table expected, got nil)"}
+            {true, "bad argument #3 to 'receiveuntil' (table expected, got boolean)"}
+            {'s', "bad argument #3 to 'receiveuntil' (table expected, got string)"}
+            {(-> nil), "bad argument #3 to 'receiveuntil' (table expected, got function)"}
+        }
+            it tostring(options), ->
+                bf = new 'deadbeef'
+                ok, err = pcall bf\receiveuntil, '--', options
+                assert.is.false, ok
+                assert.are.equal exp_err, err
+
+    describe 'should raise error if bad inclusive option:', ->
+        for {value, exp_err} in *{
+            {'s', 'bad "inclusive" option value type: string'}
+            {1, 'bad "inclusive" option value type: number'}
+            {(-> nil), 'bad "inclusive" option value type: function'}
+        }
+            it tostring(value), ->
+                bf = new 'deadbeef'
+                ok, err = pcall bf\receiveuntil, '--', {inclusive: value}
+                assert.is.false, ok
+                assert.are.equal exp_err, err

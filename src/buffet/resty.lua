@@ -252,10 +252,28 @@ mt.receiveuntil = function(self, ...)
     if self._closed then
         return nil, ERR_CLOSED
     end
-    if select('#', ...) == 0 then
-        return error('expecting 2 or 3 arguments (including the object), but got 1', 0)
+    local args_count = select('#', ...)
+    local options = nil
+    local pattern
+    if args_count == 1 then
+        pattern = ...
+    elseif args_count == 2 then
+        pattern, options = ...
+        if type(options) ~= 'table' then
+            return error(str_format(
+                "bad argument #3 to 'receiveuntil' (table expected, got %s)", type(options)), 0)
+        end
+    else
+        return error(str_format(
+            'expecting 2 or 3 arguments (including the object), but got %d', args_count + 1), 0)
     end
-    local pattern = ...
+    local inclusive = false
+    if options then
+        inclusive = options.inclusive
+        if type(inclusive) ~= 'boolean' then
+            return error(str_format('bad "inclusive" option value type: %s', type(inclusive)), 0)
+        end
+    end
     local pattern_type = type(pattern)
     if pattern_type == 'number' then
         pattern = tostring(pattern)
@@ -266,7 +284,7 @@ mt.receiveuntil = function(self, ...)
     if pattern == '' then
         return nil, 'pattern is empty'
     end
-    return _get_receivenutil_iterator(self, pattern)
+    return _get_receivenutil_iterator(self, pattern, inclusive)
 end
 
 mt.close = function(self)
