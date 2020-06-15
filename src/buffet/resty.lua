@@ -18,9 +18,7 @@ local table_insert = table.insert
 local ERR_CLOSED = 'closed'
 local ERR_RECEIVE_BAD_PATTERN = "bad argument #2 to 'receive' (bad pattern argument)"
 
-local _M = {
-    _VERSION = '0.1.0.dev0',
-}
+local _M = {}
 
 local mt = {}
 mt.__index = mt
