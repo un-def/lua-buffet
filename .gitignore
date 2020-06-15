@@ -3,3 +3,5 @@
 !.editorconfig
 !.busted
 !.travis.yml
+
+*.rock
