@@ -1,6 +1,8 @@
 # lua-buffet
 
-[![Build Status](https://img.shields.io/travis/un-def/lua-buffet.svg?style=flat-square)](https://travis-ci.org/un-def/lua-buffet)
+[![Luarocks](https://img.shields.io/luarocks/v/undef/lua-buffet?style=for-the-badge)](https://luarocks.org/modules/undef/lua-buffet)
+[![Build Status](https://img.shields.io/travis/un-def/lua-buffet?style=for-the-badge)](https://travis-ci.org/un-def/lua-buffet)
+[![License](https://img.shields.io/github/license/un-def/lua-buffet?style=for-the-badge)][license]
 
 Socket-like buffer objects for Lua
 
@@ -42,3 +44,10 @@ The word “buffet” is a portmanteau of “**buff**er” and “sock**et**”.
 ### LuaSocket
 
 ...
+
+## License
+
+The [MIT License][license].
+
+
+[license]: https://github.com/un-def/lua-buffet/blob/master/LICENSE
