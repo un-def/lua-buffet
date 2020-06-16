@@ -5,4 +5,12 @@ local _M = {
     _LICENSE = 'MIT',
 }
 
+_M.is_closed = function(bf)
+    return bf._closed
+end
+
+_M.get_iterator_error = function(bf)
+    return bf._iterator_error
+end
+
 return _M
