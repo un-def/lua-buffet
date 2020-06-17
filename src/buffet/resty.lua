@@ -52,6 +52,10 @@ local _get_chunk = function(bf)
             if err then
                 bf._iterator_error = err
             end
+            -- Here we just remove the reference to the iterator to prevent
+            -- any further calls. It's easier than managing an additional
+            -- attribute like `_iterator_is_done`.
+            bf._iterator = nil
             return nil
         elseif chunk ~= '' then
             return chunk
