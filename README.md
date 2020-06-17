@@ -68,6 +68,10 @@ For more advanded usage see the [examples](https://github.com/un-def/lua-buffet/
 
 Documentation is available at https://undef.im/lua-buffet/.
 
+## Changelog
+
+For detailed changelog see [CHANGELOG.md](https://github.com/un-def/lua-buffet/blob/master/CHANGELOG.md).
+
 ## TODO
 
 ### OpenResty
