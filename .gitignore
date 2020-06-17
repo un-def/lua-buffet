@@ -5,3 +5,5 @@
 !.travis.yml
 
 *.rock
+*.tar.gz
+/lua-buffet-*/
