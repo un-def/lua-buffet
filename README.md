@@ -1,6 +1,7 @@
 # lua-buffet
 
 [![Luarocks](https://img.shields.io/luarocks/v/undef/lua-buffet?style=for-the-badge)](https://luarocks.org/modules/undef/lua-buffet)
+[![OPM](https://img.shields.io/opm/v/un-def/lua-buffet?color=brightgreen&style=for-the-badge)](https://opm.openresty.org/package/un-def/lua-buffet/)
 [![Build Status](https://img.shields.io/travis/un-def/lua-buffet?style=for-the-badge)](https://travis-ci.org/un-def/lua-buffet)
 [![License](https://img.shields.io/github/license/un-def/lua-buffet?style=for-the-badge)][license]
 
