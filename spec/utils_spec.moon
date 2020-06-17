@@ -37,7 +37,7 @@ describe 'get_iterator_error(bf)', ->
             coroutine.yield 'foo'
             coroutine.yield 'bar'
             coroutine.yield nil
-            coroutine.yeild 'baz'
+            coroutine.yield 'baz'
         bf = new iterator
         chunks = {}
         while true
@@ -56,7 +56,7 @@ describe 'get_iterator_error(bf)', ->
             coroutine.yield 'foo'
             coroutine.yield 'bar'
             coroutine.yield nil, 'some error'
-            coroutine.yeild 'baz'
+            coroutine.yield 'baz'
         bf = new iterator
         chunks = {}
         while true

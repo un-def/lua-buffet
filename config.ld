@@ -1,0 +1,9 @@
+project = 'lua-buffet'
+title = 'lua-buffet documentation'
+package = 'buffet'
+file = 'src/buffet'
+dir = 'docs'
+format = 'markdown'
+no_lua_ref = true
+no_space_before_args = true
+style = '!fixed'

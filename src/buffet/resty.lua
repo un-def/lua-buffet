@@ -1,3 +1,5 @@
+--- OpenResty flavor of buffet objects.
+-- @module buffet.resty
 local error = error
 local select = select
 local setmetatable = setmetatable
@@ -19,6 +21,9 @@ local ERR_CLOSED = 'closed'
 local ERR_RECEIVE_BAD_PATTERN = "bad argument #2 to 'receive' (bad pattern argument)"
 
 local _M = {}
+
+--- OpenResty buffet type
+-- @type buffet
 
 local mt = {}
 mt.__index = mt
@@ -137,6 +142,20 @@ local _receive_size = function(bf, size)
     end
 end
 
+--- Read the data according to the reading pattern or size.
+--
+-- See [Lua Nginx Module documentation](https://github.com/openresty/lua-nginx-module#tcpsockreceive).
+-- @function receive
+-- @tparam[1] number|string size_or_pattern a size of data to read or a pattern:
+--
+--  * `'*a'` to read all data
+--  * `'*l'` to read a line
+-- @treturn[1] string data
+-- @treturn[2] nil
+-- @treturn[2] string an error
+-- @treturn[2] string partial data
+-- @treturn[3] nil
+-- @treturn[3] string an error
 mt.receive = function(self, ...)
     if select('#', ...) == 0 then
         return _receive_line(self)
@@ -254,6 +273,15 @@ local _get_receivenutil_iterator = function(bf, pattern, inclusive)
     end
 end
 
+--- Get an iterator to read the data until the specified pattern.
+--
+-- See [Lua Nginx Module documentation](https://github.com/openresty/lua-nginx-module#tcpsockreceiveuntil).
+-- @function receiveuntil
+-- @tparam string pattern
+-- @tparam ?table options
+-- @treturn[1] function an iterator
+-- @treturn[2] nil
+-- @treturn[2] string an error
 mt.receiveuntil = function(self, ...)
     if self._closed then
         return nil, ERR_CLOSED
@@ -293,6 +321,15 @@ mt.receiveuntil = function(self, ...)
     return _get_receivenutil_iterator(self, pattern, inclusive)
 end
 
+--- Close the buffet.
+--
+-- Marks the object as closed. Removes the reference to the input data.
+--
+-- See [Lua Nginx Module documentation](https://github.com/openresty/lua-nginx-module#tcpsockclose).
+-- @function close
+-- @treturn[1] number 1 in case of success
+-- @treturn[2] nil
+-- @treturn[2] string an error
 mt.close = function(self)
     if self._closed then
         return nil, ERR_CLOSED
@@ -303,6 +340,18 @@ mt.close = function(self)
     return 1
 end
 
+--- @section end
+
+--- Create a new buffet object.
+-- @tparam[1] string|table|function data
+-- input data, one of:
+--
+-- * a byte string
+-- * an array-like table of byte strings (be aware that the object will use **the same** table, not a copy)
+-- * an iterator function producing byte strings
+-- @treturn[1] buffet a buffet object
+-- @treturn[2] nil
+-- @treturn[2] string an error
 _M.new = function(data)
     local iterator = nil
     local chunk = nil

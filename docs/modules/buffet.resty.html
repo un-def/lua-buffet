@@ -1,0 +1,296 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>lua-buffet documentation</title>
+    <link rel="stylesheet" href="../ldoc_fixed.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>lua-buffet</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+<li><a href="#Class_buffet">Class buffet </a></li>
+</ul>
+
+
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/buffet.html">buffet</a></li>
+  <li><strong>buffet.resty</strong></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>buffet.resty</code></h1>
+<p>OpenResty flavor of buffet objects.</p>
+<p>
+
+</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#new">new(data)</a></td>
+	<td class="summary">Create a new buffet object.</td>
+	</tr>
+</table>
+<h2><a href="#Class_buffet">Class buffet </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#buffet:receive">buffet:receive(size_or_pattern)</a></td>
+	<td class="summary">Read the data according to the reading pattern or size.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#buffet:receiveuntil">buffet:receiveuntil(pattern, options)</a></td>
+	<td class="summary">Get an iterator to read the data until the specified pattern.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#buffet:close">buffet:close()</a></td>
+	<td class="summary">Close the buffet.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "new"></a>
+    <strong>new(data)</strong>
+    </dt>
+    <dd>
+    Create a new buffet object.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">data</span>
+            <span class="types"><span class="type">string</span>, <span class="type">table</span> or <span class="type">function</span></span>
+
+
+<p> input data, one of:</p>
+
+<ul>
+    <li>a byte string</li>
+    <li>an array-like table of byte strings (be aware that the object will use <strong>the same</strong> table, not a copy)</li>
+    <li>an iterator function producing byte strings</li>
+</ul>
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="../modules/buffet.resty.html#buffet">buffet</a></span>
+        a buffet object
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">nil</span></span>
+
+
+</li>
+        <li>
+           <span class="types"><span class="type">string</span></span>
+        an error</li>
+    </ol>
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header has-description"><a name="Class_buffet"></a>Class buffet </h2>
+
+          <div class="section-description">
+          OpenResty buffet type
+          </div>
+    <dl class="function">
+    <dt>
+    <a name = "buffet:receive"></a>
+    <strong>buffet:receive(size_or_pattern)</strong>
+    </dt>
+    <dd>
+    Read the data according to the reading pattern or size. </p>
+
+<p> See <a href="https://github.com/openresty/lua-nginx-module#tcpsockreceive">Lua Nginx Module documentation</a>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">size_or_pattern</span>
+            <span class="types"><span class="type">number</span> or <span class="type">string</span></span>
+
+<p> a size of data to read or a pattern:</p>
+
+<ul>
+    <li><code>&apos;*a&apos;</code> to read all data</li>
+    <li><code>&apos;*l&apos;</code> to read a line</li>
+</ul>
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">string</span></span>
+        data
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">nil</span></span>
+
+
+</li>
+        <li>
+           <span class="types"><span class="type">string</span></span>
+        an error</li>
+        <li>
+           <span class="types"><span class="type">string</span></span>
+        partial data</li>
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">nil</span></span>
+
+
+</li>
+        <li>
+           <span class="types"><span class="type">string</span></span>
+        an error</li>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "buffet:receiveuntil"></a>
+    <strong>buffet:receiveuntil(pattern, options)</strong>
+    </dt>
+    <dd>
+    Get an iterator to read the data until the specified pattern. </p>
+
+<p> See <a href="https://github.com/openresty/lua-nginx-module#tcpsockreceiveuntil">Lua Nginx Module documentation</a>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">pattern</span>
+            <span class="types"><span class="type">string</span></span>
+
+
+
+        </li>
+        <li><span class="parameter">options</span>
+            <span class="types">optional <span class="type">table</span></span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">function</span></span>
+        an iterator
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">nil</span></span>
+
+
+</li>
+        <li>
+           <span class="types"><span class="type">string</span></span>
+        an error</li>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "buffet:close"></a>
+    <strong>buffet:close()</strong>
+    </dt>
+    <dd>
+    Close the buffet. </p>
+
+<p> Marks the object as closed. Removes the reference to the input data.</p>
+
+<p> See <a href="https://github.com/openresty/lua-nginx-module#tcpsockclose">Lua Nginx Module documentation</a>.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">number</span></span>
+        1 in case of success
+    </ol>
+     <h3>Or</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">nil</span></span>
+
+
+</li>
+        <li>
+           <span class="types"><span class="type">string</span></span>
+        an error</li>
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2020-06-16 23:18:01 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

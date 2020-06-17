@@ -5,12 +5,16 @@ lint:
 	find -name '*.moon' -print -exec moonpick {} \;
 
 .PHONY: test
-test: output = 'utfTerminal'
+test: output := 'utfTerminal'
 test:
 	@busted -o $(output)
 
+.PHONY: doc
+doc:
+	ldoc .
+
 .PHONY: install-dev-deps
-install-dev-deps: deps = busted moonscript moonpick luacheck
+install-dev-deps: deps := busted moonscript moonpick luacheck ldoc
 install-dev-deps:
 	$(foreach dep,$(deps),luarocks install $(dep) &&) true
 
