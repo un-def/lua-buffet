@@ -13,7 +13,7 @@ describe 'is_closed(bf)', ->
 
     it "should return true if buffet is closed with 'receive' method", ->
         bf = new 'deadbeef'
-        bf\receive '*a'
+        bf\receive 1024
         n, closed = nargs is_closed bf
         assert.are.equal 1, n
         assert.are.equal true, closed

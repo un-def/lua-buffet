@@ -79,9 +79,6 @@ local _remove_cr = function(str)
 end
 
 local _receive_line = function(bf)
-    if bf._closed then
-        return nil, ERR_CLOSED
-    end
     local buffer = {}
     while true do
         local chunk = _get_chunk(bf)
@@ -100,9 +97,6 @@ local _receive_line = function(bf)
 end
 
 local _receive_all = function(bf)
-    if bf._closed then
-        return ''
-    end
     local buffer = {}
     while true do
         local chunk = _get_chunk(bf)
@@ -111,14 +105,10 @@ local _receive_all = function(bf)
         end
         table_insert(buffer, chunk)
     end
-    bf:close()
     return table_concat(buffer)
 end
 
 local _receive_size = function(bf, size)
-    if bf._closed then
-        return nil, ERR_CLOSED
-    end
     size = math_floor(size)
     if size < 0 then
         return error(ERR_RECEIVE_BAD_PATTERN, 0)
@@ -161,6 +151,9 @@ end
 -- @treturn[3] nil
 -- @treturn[3] string an error
 mt.receive = function(self, ...)
+    if self._closed then
+        return nil, ERR_CLOSED
+    end
     if select('#', ...) == 0 then
         return _receive_line(self)
     end
@@ -287,9 +280,6 @@ end
 -- @treturn[2] nil
 -- @treturn[2] string an error
 mt.receiveuntil = function(self, ...)
-    if self._closed then
-        return nil, ERR_CLOSED
-    end
     local args_count = select('#', ...)
     local options = nil
     local pattern

@@ -52,6 +52,13 @@ describe 'receiveuntil(pattern)', ->
         assert.is.nil iter
         assert.are.equal 'pattern is empty', err
 
+    it 'should return iterator despite closed connection', ->
+        bf = new 'dead--beef'
+        bf\close!
+        n, iter = nargs bf\receiveuntil '--'
+        assert.are.equal n, 1
+        assert.is.function iter
+
 describe 'receiveuntil(pattern, options)', ->
 
     describe 'should raise error if bad options:', ->

@@ -1,4 +1,5 @@
 import new from require 'buffet.resty'
+import is_closed from require 'buffet'
 
 
 get_input_iterator = (tbl) ->
@@ -10,18 +11,25 @@ get_input_iterator = (tbl) ->
 
 describe 'receive(pattern)', ->
 
-    describe 'should raise error if bad pattern:', ->
-        for {pattern, msg} in *{
-            {nil, 'nil'}
-            {'foo', 'unsupported string pattern'}
-            {false, 'boolean'}
-            {{}, 'table'}
-        }
-            it msg, ->
-                bf = new 'deadbeef'
-                ok, err = pcall bf\receive, pattern
-                assert.is.false, ok
-                assert.are.equal "bad argument #2 to 'receive' (bad pattern argument)", err
+    for {pattern, msg} in *{
+        {nil, 'nil'}
+        {'foo', 'unsupported string pattern'}
+        {false, 'boolean'}
+        {{}, 'table'}
+    }
+        it 'should raise error if bad pattern: ' .. msg, ->
+            bf = new 'deadbeef'
+            ok, err = pcall bf\receive, pattern
+            assert.is.false, ok
+            assert.are.equal "bad argument #2 to 'receive' (bad pattern argument)", err
+
+        it 'should ignore bad pattern if not connected: ' .. msg, ->
+            bf = new 'deadbeef'
+            bf\close!
+            n, data, err = nargs bf\receive pattern
+            assert.are.equal 2, n
+            assert.is.nil data
+            assert.are.equal 'closed', err
 
 describe "receive('*a')", ->
 
@@ -40,13 +48,27 @@ describe "receive('*a')", ->
                     assert.are.equal 1, n
                     assert.are.equal '', data
 
-    it 'should return empty string if closed', ->
+    it 'should return empty string if there are no data', ->
         bf = new 'deadbeef'
-        bf\close!
+        bf\receive '*a'
         for _ = 1, 2
             n, data = nargs bf\receive '*a'
             assert.are.equal 1, n
             assert.are.equal '', data
+
+    it 'should not close connection', ->
+        bf = new 'deadbeef'
+        bf\receive '*a'
+        assert.is.false is_closed bf
+
+    it 'should return error if closed', ->
+        bf = new 'deadbeef'
+        bf\close!
+        for _ = 1, 2
+            n, data, err = nargs bf\receive '*a'
+            assert.are.equal 2, n
+            assert.is.nil data
+            assert.are.equal 'closed', err
 
 for {msg, fn} in *{
     {'receive(*l)', (bf) -> bf\receive '*l'}

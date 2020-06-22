@@ -1,4 +1,5 @@
 import new from require 'buffet.resty'
+import is_closed from require 'buffet'
 
 
 get_buffet = (input) ->
@@ -40,6 +41,16 @@ describe 'receive(size)', ->
         assert.are.equal 2, n
         assert.is.nil data
         assert.are.equal 'closed', err
+
+    it 'should not close connection if size = 0', ->
+        bf = new 'deadbeef'
+        bf\receive 8
+        assert.is.false is_closed bf
+        for _ = 1, 3
+            n, data = nargs bf\receive 0
+            assert.are.equal 1, n
+            assert.are.equal '', data
+        assert.is.false is_closed bf
 
     input_string = 'deadbeefdeadf00d'
     input_table = {'', 'de', 'adbee', '', 'fde' , 'adf0', '0', 'd', '', ''}

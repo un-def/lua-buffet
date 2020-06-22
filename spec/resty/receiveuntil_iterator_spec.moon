@@ -12,6 +12,21 @@ describe 'receiveuntil()', ->
 
     describe 'iterator()', ->
 
+        it 'should return error if closed', ->
+            bf = new 'dead--beef--dead--f00d'
+            iter = bf\receiveuntil '--'
+            n, data = nargs iter!
+            assert.are.equal 1, n
+            assert.are.equal 'dead', data
+            n, data = nargs iter!
+            assert.are.equal 1, n
+            assert.are.equal 'beef', data
+            bf\close!
+            n, data, err = nargs iter!
+            assert.are.equal 2, n
+            assert.is.nil data
+            assert.are.equal 'closed', err
+
         describe 'with trailer', ->
 
             input_string = 'deadbeef-++-deadf00d-++-trailer'
@@ -67,6 +82,21 @@ describe 'receiveuntil()', ->
                         assert.are.equal exp_partial, partial
 
     describe 'iterator(size)', ->
+
+        it 'should return error if closed', ->
+            bf = new 'deadbeef--deadf00d'
+            iter = bf\receiveuntil '--'
+            n, data = nargs iter 2
+            assert.are.equal 1, n
+            assert.are.equal 'de', data
+            n, data = nargs iter 2
+            assert.are.equal 1, n
+            assert.are.equal 'ad', data
+            bf\close!
+            n, data, err = nargs iter!
+            assert.are.equal 2, n
+            assert.is.nil data
+            assert.are.equal 'closed', err
 
         describe 'should raise error if size is not number or number-like string: ', ->
             for {size, exp_err} in *{
