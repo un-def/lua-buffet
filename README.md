@@ -80,7 +80,7 @@ For detailed changelog see [CHANGELOG.md](https://github.com/un-def/lua-buffet/b
 #### `ngx.socket.tcp`
 
   * [x] constructor (`ngx.socket.tcp` ~ `buffet.resty.new`)
-  * [ ] `:connect`
+  * [x] `:connect` (noop)
   * [ ] `:sslhandshake`
   * [ ] `:send`
   * [x] `:receive`

@@ -1,4 +1,5 @@
 import new from require 'buffet.resty'
+import is_closed from require 'buffet'
 
 
 describe 'close()', ->
@@ -8,6 +9,7 @@ describe 'close()', ->
         n, ok = nargs bf\close!
         assert.are.equal 1, n
         assert.are.equal 1, ok
+        assert.is.true is_closed bf
 
     it 'should return error if already closed', ->
         bf = new 'deadbeef'
@@ -16,3 +18,4 @@ describe 'close()', ->
         assert.are.equal 2, n
         assert.is.nil ok
         assert.are.equal 'closed', err
+        assert.is.true is_closed bf

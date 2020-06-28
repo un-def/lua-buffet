@@ -334,6 +334,20 @@ mt.close = function(self)
     return 1
 end
 
+--- Connect the buffet.
+--
+-- This method is _almost_ noop, it only marks the object as “connected” (not closed).
+-- The return status is always success (1).
+--
+-- See [Lua Nginx Module documentation](https://github.com/openresty/lua-nginx-module#tcpsockconnect).
+-- @function connect
+-- @tparam any ... not checked, not used
+-- @treturn number 1
+mt.connect = function(self)
+    self._closed = false
+    return 1
+end
+
 --- @section end
 
 --- Create a new buffet object.
