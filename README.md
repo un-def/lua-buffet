@@ -81,7 +81,7 @@ For detailed changelog see [CHANGELOG.md](https://github.com/un-def/lua-buffet/b
 
   * [x] constructor (`ngx.socket.tcp` ~ `buffet.resty.new`)
   * [x] `:connect` (noop)
-  * [ ] `:sslhandshake`
+  * [x] `:sslhandshake` (noop)
   * [ ] `:send`
   * [x] `:receive`
     * [x] `:receive()`

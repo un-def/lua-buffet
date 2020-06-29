@@ -348,6 +348,26 @@ mt.connect = function(self)
     return 1
 end
 
+--- Do SSL/TLS handshake.
+--
+-- This method is noop.
+-- If the buffet is not closed, the method returns `true` (as if `false` was passed
+-- as the `reused_session` argument).
+-- Otherwise, the method returns `nil` and an error.
+--
+-- See [Lua Nginx Module documentation](https://github.com/openresty/lua-nginx-module#tcpsocksslhandshake).
+-- @function sslhandshake
+-- @tparam any ... not checked, not used
+-- @treturn[1] boolean true
+-- @treturn[2] nil
+-- @treturn[2] string an error
+mt.sslhandshake = function(self)
+    if self._closed then
+        return nil, ERR_CLOSED
+    end
+    return true
+end
+
 --- @section end
 
 --- Create a new buffet object.
