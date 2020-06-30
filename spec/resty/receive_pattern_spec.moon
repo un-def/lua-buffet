@@ -19,7 +19,7 @@ describe 'receive(pattern)', ->
     }
         it 'should raise error if bad pattern: ' .. msg, ->
             bf = new 'deadbeef'
-            ok, err = pcall bf\receive, pattern
+            ok, err = pcall bf.receive, bf, pattern
             assert.is.false, ok
             assert.are.equal "bad argument #2 to 'receive' (bad pattern argument)", err
 

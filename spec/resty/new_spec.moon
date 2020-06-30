@@ -8,6 +8,7 @@ describe 'new()', ->
             {{}, 'table'}
             {'', 'string'}
             {(-> nil), 'function'}
+            {nil, 'nil'}
         }
             it value_type, ->
                 n, bf = nargs new value
@@ -16,7 +17,6 @@ describe 'new()', ->
 
     describe 'should not accept', ->
         for {value, value_type} in *{
-            {nil, 'nil'}
             {false, 'boolean'}
             {0, 'number'}
         }

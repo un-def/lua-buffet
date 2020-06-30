@@ -26,7 +26,7 @@ describe 'receive(size)', ->
         }
             it msg, ->
                 bf = new 'deadbeef'
-                ok, err = pcall bf\receive, size
+                ok, err = pcall bf.receive, bf, size
                 assert.is.false, ok
                 assert.are.equal "bad argument #2 to 'receive' (bad pattern argument)", err
 

@@ -140,10 +140,12 @@ end
 --
 -- See [Lua Nginx Module documentation](https://github.com/openresty/lua-nginx-module#tcpsockreceive).
 -- @function receive
--- @tparam[1] number|string size_or_pattern a size of data to read or a pattern:
+-- @tparam[opt] number|string size_or_pattern a size of data to read or a pattern:
 --
 --  * `'*a'` to read all data
 --  * `'*l'` to read a line
+--
+-- If no parameter is specified, then it is assumed to be the pattern `'*l'`.
 -- @treturn[1] string data
 -- @treturn[2] nil
 -- @treturn[2] string an error
@@ -275,7 +277,7 @@ end
 -- See [Lua Nginx Module documentation](https://github.com/openresty/lua-nginx-module#tcpsockreceiveuntil).
 -- @function receiveuntil
 -- @tparam string pattern
--- @tparam ?table options
+-- @tparam[opt] table options
 -- @treturn[1] function an iterator
 -- @treturn[2] nil
 -- @treturn[2] string an error
@@ -371,27 +373,31 @@ end
 --- @section end
 
 --- Create a new buffet object.
--- @tparam[1] string|table|function data
+-- @tparam[opt] string|table|function data
 -- input data, one of:
 --
 -- * a byte string
 -- * an array-like table of byte strings (be aware that the object will use **the same** table, not a copy)
 -- * an iterator function producing byte strings
+--
+-- If the parameter is omitted or `nil`, this is roughly equivalent to passing an empty string.
 -- @treturn[1] buffet a buffet object
 -- @treturn[2] nil
 -- @treturn[2] string an error
 _M.new = function(data)
     local iterator = nil
     local chunk = nil
-    local data_type = type(data)
-    if data_type == 'function' then
-        iterator = data
-    elseif data_type == 'table' then
-        iterator = _get_table_iterator(data)
-    elseif data_type == 'string' then
-        chunk = data
-    else
-        return nil, str_format('argument #1 must be string, table, or function, got: %s', data_type)
+    if data ~= nil then
+        local data_type = type(data)
+        if data_type == 'function' then
+            iterator = data
+        elseif data_type == 'table' then
+            iterator = _get_table_iterator(data)
+        elseif data_type == 'string' then
+            chunk = data
+        else
+            return nil, str_format('argument #1 must be string, table, or function, got: %s', data_type)
+        end
     end
     return setmetatable({
         _closed = false,

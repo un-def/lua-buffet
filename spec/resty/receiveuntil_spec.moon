@@ -41,7 +41,7 @@ describe 'receiveuntil(pattern)', ->
         }
             it tostring(pattern), ->
                 bf = new 'deadbeef'
-                ok, err = pcall bf\receiveuntil, pattern
+                ok, err = pcall bf.receiveuntil, bf, pattern
                 assert.is.false, ok
                 assert.are.equal exp_err, err
 
@@ -70,7 +70,7 @@ describe 'receiveuntil(pattern, options)', ->
         }
             it tostring(options), ->
                 bf = new 'deadbeef'
-                ok, err = pcall bf\receiveuntil, '--', options
+                ok, err = pcall bf.receiveuntil, bf, '--', options
                 assert.is.false, ok
                 assert.are.equal exp_err, err
 
@@ -82,6 +82,6 @@ describe 'receiveuntil(pattern, options)', ->
         }
             it tostring(value), ->
                 bf = new 'deadbeef'
-                ok, err = pcall bf\receiveuntil, '--', {inclusive: value}
+                ok, err = pcall bf.receiveuntil, bf, '--', {inclusive: value}
                 assert.is.false, ok
                 assert.are.equal exp_err, err
