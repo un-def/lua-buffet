@@ -2,7 +2,7 @@
 lint:
 	luacheck .
 	@echo
-	find -name '*.moon' -print -exec moonpick {} \;
+	@find -name '*.moon' -print0 | xargs -0 -t moonpick
 
 .PHONY: test
 test: output := 'utfTerminal'
