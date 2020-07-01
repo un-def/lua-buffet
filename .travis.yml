@@ -17,7 +17,8 @@ install:
   - hererocks ~/luaenv --$LUA --luarocks latest
   - source ~/luaenv/bin/activate
   - make install-dev-deps
+  - make install
 
 script:
   - make lint
-  - make test
+  - make test task=installed

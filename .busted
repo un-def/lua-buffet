@@ -2,4 +2,8 @@ return {
     _all = {
         helper = 'spec/testlib.lua',
     },
+    installed = {
+        lpath = '',
+        cpath = '',
+    },
 }

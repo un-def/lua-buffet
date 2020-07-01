@@ -6,12 +6,17 @@ lint:
 
 .PHONY: test
 test: output := 'utfTerminal'
+test: task := ''
 test:
-	@busted -o $(output)
+	@busted -o $(output) -r $(task)
 
 .PHONY: doc
 doc:
 	ldoc .
+
+.PHONY: install
+install:
+	luarocks make
 
 .PHONY: install-dev-deps
 install-dev-deps: deps := busted moonscript moonpick luacheck ldoc
