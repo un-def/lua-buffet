@@ -317,6 +317,89 @@ mt.receiveuntil = function(self, ...)
     return _get_receivenutil_iterator(self, pattern, inclusive)
 end
 
+local _get_table_len = function(tbl)
+    local max_index = 0
+    for key in next, tbl do
+        if type(key) ~= 'number' or math_floor(key) ~= key or key < 1 then
+            return nil, 'non-array table'
+        end
+        if key > max_index then
+            max_index = key
+        end
+    end
+    return max_index
+end
+
+local _flatten_send_data_table
+_flatten_send_data_table = function(tbl, acc)
+    if not acc then
+        acc = {}
+    end
+    local len, err = _get_table_len(tbl)
+    if err then
+        return nil, err
+    end
+    for index = 1, len do
+        local value = tbl[index]
+        local value_type = type(value)
+        if value_type == 'string' then
+            table_insert(acc, value)
+        elseif value_type == 'number' then
+            table_insert(acc, tostring(value))
+        elseif value_type == 'table' then
+            -- Should we limit recursion depth or track seen tables to avoid
+            -- errors due to recursive tables?
+            local _, err = _flatten_send_data_table(value, acc)   -- luacheck: ignore 421
+            if err then
+                return nil, err
+            end
+        else
+            return nil, 'bad data type ' .. value_type
+        end
+    end
+    return acc
+end
+
+--- Send data.
+--
+-- Appends a string representation of the data to the internal send buffer. Use @{get_send_buffer} to access the buffer
+-- or @{get_sent_data} to get the content of the buffer as a string.
+--
+-- The `data` parameter can be:
+--
+--  * a string
+--  * an array-like table containing strings (possibly nested)
+--  * a number, boolean or nil (will be converted to a string)
+--
+-- See [Lua Nginx Module documentation](https://github.com/openresty/lua-nginx-module#tcpsocksend).
+-- @function send
+-- @tparam string|table|number|boolean|nil data the data to send
+-- @treturn[1] number number of bytes have been sent
+-- @treturn[2] nil
+-- @treturn[2] string an error
+mt.send = function(self, data)
+    if self._closed then
+        return nil, ERR_CLOSED
+    end
+    local data_type = type(data)
+    if data_type == 'string' then   -- luacheck: ignore 542
+        -- pass
+    elseif data_type == 'table' then
+        local flat_tbl, err = _flatten_send_data_table(data)
+        if not flat_tbl then
+            return error(str_format("bad argument #2 to 'send' (%s found)", err), 0)
+        end
+        data = table_concat(flat_tbl)
+    elseif data_type == 'number' or data_type == 'boolean' or data == nil then
+        data = tostring(data)
+    else
+        return error(str_format(
+            "bad argument #2 to 'send' (string, number, boolean, nil, or array table expected, got %s)", data_type), 0)
+    end
+    table_insert(self._send_buffer, data)
+    return #data
+end
+
 --- Close the buffet.
 --
 -- Marks the object as closed. Removes the reference to the input data.
@@ -403,6 +486,7 @@ _M.new = function(data)
         _closed = false,
         _iterator = iterator,
         _chunk = chunk,
+        _send_buffer = {},
     }, mt)
 end
 
