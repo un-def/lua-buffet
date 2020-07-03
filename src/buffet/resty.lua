@@ -179,6 +179,50 @@ mt.receive = function(self, ...)
     return error(ERR_RECEIVE_BAD_PATTERN, 0)
 end
 
+--- Read the data, at most max bytes.
+--
+-- The main difference between `receive(size)` and `receiveany(max)` is that the latter doesn't read the next chunk
+-- from the input table/iterator if there is any data in the internal buffer left over from the previous calls.
+--
+-- See [Lua Nginx Module documentation](https://github.com/openresty/lua-nginx-module#tcpsockreceiveany).
+-- @function receiveany
+-- @tparam number|string max a max size of data to read
+-- @treturn[1] string data
+-- @treturn[2] nil
+-- @treturn[2] string an error
+-- @treturn[2] string an empty string (this is an undocumented quirk of the Lua Nginx Module)
+-- @treturn[3] nil
+-- @treturn[3] string an error
+mt.receiveany = function(self, max)
+    if self._closed then
+        return nil, ERR_CLOSED
+    end
+    local err = "bad argument #2 to 'receiveany' (bad max argument)"
+    local max_type = type(max)
+    if max_type == 'string' then
+        max = tonumber(max)
+        if not max then
+            return error(err, 0)
+        end
+    elseif max_type ~= 'number' then
+        return error(err, 0)
+    end
+    max = math_floor(max)
+    if max < 1 then
+        return error(err, 0)
+    end
+    local chunk = _get_chunk(self)
+    if not chunk then
+        self:close()
+        return nil, ERR_CLOSED, ''
+    end
+    if #chunk > max then
+        _store_chunk(self, str_sub(chunk, max + 1))
+        chunk = str_sub(chunk, 1, max)
+    end
+    return chunk
+end
+
 local _find_pattern = function(str, pattern, search_start, search_stop)
     if search_stop and #str > search_stop then
         str = str_sub(str, 1, search_stop)
@@ -477,7 +521,9 @@ _M.new = function(data)
         elseif data_type == 'table' then
             iterator = _get_table_iterator(data)
         elseif data_type == 'string' then
-            chunk = data
+            if data ~= '' then
+                chunk = data
+            end
         else
             return nil, str_format('argument #1 must be string, table, or function, got: %s', data_type)
         end

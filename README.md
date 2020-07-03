@@ -88,7 +88,7 @@ For detailed changelog see [CHANGELOG.md](https://github.com/un-def/lua-buffet/b
     * [x] `:receive('*l')`
     * [x] `:receive('*a')`
     * [x] `:receive(size)`
-  * [ ] `:receiveany`
+  * [x] `:receiveany`
   * [x] `:receiveuntil`
     * [x] `iterator()`
     * [x] `iterator(size)`
