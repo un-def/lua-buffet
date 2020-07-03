@@ -23,13 +23,13 @@ Finally we [create](https://github.com/openresty/lua-resty-upload#synopsis) the 
 1. Install dependencies (`luarocks` or `opm` is not required):
 
     ```sh
-    $ make install
+    make install
     ```
 
 2. Run nginx:
 
     ```sh
-    $ make run
+    make run
     ```
 
 3. Make a request:
