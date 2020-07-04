@@ -1,9 +1,9 @@
 # lua-buffet
 
-[![Luarocks](https://img.shields.io/luarocks/v/undef/lua-buffet?style=for-the-badge)](https://luarocks.org/modules/undef/lua-buffet)
-[![OPM](https://img.shields.io/opm/v/un-def/lua-buffet?color=brightgreen&style=for-the-badge)](https://opm.openresty.org/package/un-def/lua-buffet/)
-[![Build Status](https://img.shields.io/travis/un-def/lua-buffet?style=for-the-badge)](https://travis-ci.org/un-def/lua-buffet)
-[![License](https://img.shields.io/github/license/un-def/lua-buffet?style=for-the-badge)][license]
+[![Luarocks](https://img.shields.io/luarocks/v/undef/lua-buffet?color=blue)](https://luarocks.org/modules/undef/lua-buffet)
+[![OPM](https://img.shields.io/opm/v/un-def/lua-buffet?color=blue)](https://opm.openresty.org/package/un-def/lua-buffet/)
+[![Build Status](https://img.shields.io/travis/un-def/lua-buffet)](https://travis-ci.org/un-def/lua-buffet)
+[![License](https://img.shields.io/github/license/un-def/lua-buffet)][license]
 
 Socket-like buffer objects for Lua
 
@@ -27,40 +27,61 @@ local buffet_resty = require('buffet.resty')
 
 -- Input data is a string.
 -- Read data in chunks of 3 bytes.
-local bf = buffet_resty.new('data string')
-print(buffet.is_closed(bf))   -- false
-repeat
-    local data, err, partial = bf:receive(3)
-    print(data, err, partial)
-until err
-print(buffet.is_closed(bf))   -- true
+do
+    local bf = buffet_resty.new('data string')
+    print(buffet.is_closed(bf))   -- false
+    repeat
+        local data, err, partial = bf:receive(3)
+        print(data, err, partial)
+    until err
+    print(buffet.is_closed(bf))   -- true
+end
 
 -- Input data is a table containing data chunks.
 -- Read data line by line.
-local bf = buffet_resty.new({'line 1\nline', ' 2\nli', 'ne 3\n'})
-repeat
-    local data, err, partial = bf:receive('*l')
-    print(data, err, partial)
-until err
+do
+    local bf = buffet_resty.new({'line 1\nline', ' 2\nli', 'ne 3\n'})
+    repeat
+        local data, err, partial = bf:receive('*l')
+        print(data, err, partial)
+    until err
+end
 
 -- Input data is a function producing data chunks.
 -- Read data splitted by the specified pattern, up to 4 bytes at once.
-local iterator = coroutine.wrap(function()
-    coroutine.yield('first-==-se')
-    coroutine.yield('cond-==')
-    coroutine.yield('-thi')
-    coroutine.yield('rd')
-    coroutine.yield(nil, 'some error')
-    coroutine.yield('unreachable')
-end)
-local bf = buffet_resty.new(iterator)
-local reader = bf:receiveuntil('-==-')
-print(buffet.get_iterator_error(bf))   -- nil
-repeat
-    local data, err, partial = reader(4)
-    print(data, err, partial)
-until err
-print(buffet.get_iterator_error(bf))   -- some error
+do
+    local iterator = coroutine.wrap(function()
+        coroutine.yield('first-==-se')
+        coroutine.yield('cond-==')
+        coroutine.yield('-thi')
+        coroutine.yield('rd')
+        coroutine.yield(nil, 'some error')
+        coroutine.yield('unreachable')
+    end)
+    local bf = buffet_resty.new(iterator)
+    local reader = bf:receiveuntil('-==-')
+    print(buffet.get_iterator_error(bf))   -- nil
+    repeat
+        local data, err, partial = reader(4)
+        print(data, err, partial)
+    until err
+    print(buffet.get_iterator_error(bf))   -- some error
+end
+
+-- Send data.
+do
+    local bf = buffet_resty.new()
+    for i = 1, 5 do
+        local char = string.char(0x40 + i)
+        bf:send(string.rep(char, i))
+    end
+    local send_buffer = buffet.get_send_buffer(bf)
+    print(#send_buffer)   -- 5
+    for _, chunk in ipairs(send_buffer) do
+        print(chunk)
+    end
+    print(buffet.get_sent_data(bf))   -- ABBCCCDDDDEEEEE
+end
 ```
 
 For more advanded usage see the [examples](https://github.com/un-def/lua-buffet/tree/master/examples) directory.
