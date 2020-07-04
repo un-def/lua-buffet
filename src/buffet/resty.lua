@@ -36,6 +36,12 @@ local _get_table_iterator = function(tbl)
     end
 end
 
+local _close = function(bf)
+    bf._closed = true
+    bf._iterator = nil
+    bf._chunk = nil
+end
+
 local _get_chunk = function(bf)
     local chunk = bf._chunk
     if chunk then
@@ -83,7 +89,7 @@ local _receive_line = function(bf)
     while true do
         local chunk = _get_chunk(bf)
         if not chunk then
-            bf:close()
+            _close(bf)
             return nil, ERR_CLOSED, _remove_cr(table_concat(buffer))
         end
         local lf_at = str_find(chunk, '\n', 1, true)
@@ -120,7 +126,7 @@ local _receive_size = function(bf, size)
     while true do
         local chunk = _get_chunk(bf)
         if not chunk then
-            bf:close()
+            _close(bf)
             return nil, ERR_CLOSED, table_concat(buffer)
         end
         have_bytes = have_bytes + #chunk
@@ -213,7 +219,7 @@ mt.receiveany = function(self, max)
     end
     local chunk = _get_chunk(self)
     if not chunk then
-        self:close()
+        _close(self)
         return nil, ERR_CLOSED, ''
     end
     if #chunk > max then
@@ -311,7 +317,7 @@ local _get_receivenutil_iterator = function(bf, pattern, inclusive)
         if not done then
             return data
         end
-        bf:close()
+        _close(bf)
         return nil, ERR_CLOSED, data
     end
 end
@@ -457,9 +463,7 @@ mt.close = function(self)
     if self._closed then
         return nil, ERR_CLOSED
     end
-    self._closed = true
-    self._iterator = nil
-    self._chunk = nil
+    _close(self)
     return 1
 end
 
