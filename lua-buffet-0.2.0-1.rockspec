@@ -1,8 +1,8 @@
 package = 'lua-buffet'
-version = '0.1.0-1'
+version = '0.2.0-1'
 source = {
     url = 'git://github.com/un-def/lua-buffet.git',
-    tag = '0.1.0',
+    tag = '0.2.0',
 }
 description = {
     summary = 'Socket-like buffer objects for Lua',

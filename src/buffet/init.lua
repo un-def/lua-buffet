@@ -4,7 +4,7 @@ local table_concat = table.concat
 
 local _M = {
     --- A version of the library.
-    _VERSION = '0.2.0.dev0',
+    _VERSION = '0.2.0',
     _DESCRIPTION = 'Socket-like buffer objects for Lua',
     _URL = 'https://github.com/un-def/lua-buffet',
     _LICENSE = 'MIT',
