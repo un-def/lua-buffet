@@ -115,11 +115,11 @@ For detailed changelog see [CHANGELOG.md](https://github.com/un-def/lua-buffet/b
     * [x] `iterator(size)`
     * [x] `inclusive` option
   * [x] `:close`
-  * [ ] `:settimeout`
-  * [ ] `:settimeouts`
-  * [ ] `:setoption`
-  * [ ] `:setkeepalive`
-  * [ ] `:getreusedtimes`
+  * [x] `:settimeout` (noop)
+  * [x] `:settimeouts` (noop)
+  * [x] `:setoption` (noop)
+  * [x] `:setkeepalive` (equivalent to `:close`)
+  * [x] `:getreusedtimes` (noop)
 
 #### `ngx.socket.udp`
 

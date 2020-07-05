@@ -501,6 +501,73 @@ mt.sslhandshake = function(self)
     return true
 end
 
+--- Set the timeout value.
+--
+-- This method is noop. The method returns nothing.
+--
+-- See [Lua Nginx Module documentation](https://github.com/openresty/lua-nginx-module#tcpsocksettimeout).
+-- @function settimeout
+-- @tparam any ... not checked, not used
+mt.settimeout = function()
+    return
+end
+
+--- Set the connect, send, and read timeout values.
+--
+-- This method is noop. The method returns nothing.
+--
+-- See [Lua Nginx Module documentation](https://github.com/openresty/lua-nginx-module#tcpsocksettimeouts).
+-- @function settimeouts
+-- @tparam any ... not checked, not used
+mt.settimeouts = function()
+    return
+end
+
+--- Set a socket option.
+--
+-- This method is noop. The method returns nothing.
+--
+-- See [Lua Nginx Module documentation](https://github.com/openresty/lua-nginx-module#tcpsocksetoption).
+-- @function setoption
+-- @tparam any ... not checked, not used
+mt.setoption = function()
+    return
+end
+
+--- Put the connection into the cosocket connection pool.
+--
+-- This method is equivalent to the @{close} method.
+--
+-- See [Lua Nginx Module documentation](https://github.com/openresty/lua-nginx-module#setkeepalive).
+-- @function setkeepalive
+-- @tparam any ... not checked, not used
+-- @treturn[1] number 1 in case of success
+-- @treturn[2] nil
+-- @treturn[2] string an error
+mt.setkeepalive = function(self)
+    if self._closed then
+        return nil, ERR_CLOSED
+    end
+    _close(self)
+    return 1
+end
+
+--- Get reused times for the connection.
+--
+-- This method is noop. The return value is always `0`.
+--
+-- See [Lua Nginx Module documentation](https://github.com/openresty/lua-nginx-module#tcpsocksetkeepalive).
+-- @function getreusedtimes
+-- @treturn[1] number 0
+-- @treturn[2] nil
+-- @treturn[2] string an error
+mt.getreusedtimes = function(self)
+    if self._closed then
+        return nil, ERR_CLOSED
+    end
+    return 0
+end
+
 --- @section end
 
 --- Create a new buffet object.

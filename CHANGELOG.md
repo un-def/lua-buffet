@@ -5,11 +5,16 @@
 ### Features:
 
   * [buffet.resty] The Lua Nginx Module/OpenResty flavor of the socket interface is now fully implemented:
-    - Implement `send` method
-    - Implement `receiveany` method
-    - Implement noop/dummy methods:
+    - Add `send` method
+    - Add `receiveany` method
+    - Add `setkeepalive` method
+    - Add noop/dummy methods:
       + `connect`
       + `sslhandshake`
+      + `settimeout`
+      + `settimeouts`
+      + `setoption`
+      + `getreusedtimes`
   * [buffet] Add `get_send_buffer` and `get_sent_data` functions for accessing the send buffer.
 
 ### Improvements:
