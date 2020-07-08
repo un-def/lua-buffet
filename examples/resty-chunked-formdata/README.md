@@ -2,7 +2,7 @@
 
 This is an example of how to process a `multipart/form-data` form _in a streaming fashion_ when a request body is encoded with `chunked` transfer encoding.
 
-Here we use [`lua-resty-http`](https://github.com/ledgetech/lua-resty-http) to decode `chunked` encoding, [`lua-resty-upload`](https://github.com/openresty/lua-resty-upload)<sup>†</sup> to process a form, and `lua-buffet` to glue they together.
+Here we use [`lua-resty-http`](https://github.com/ledgetech/lua-resty-http) to decode `chunked` encoding, [`lua-resty-upload`](https://github.com/openresty/lua-resty-upload)<sup>†</sup> to process a form, and `lua-buffet` to glue them together.
 
 ---
 

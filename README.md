@@ -123,7 +123,12 @@ For detailed changelog see [CHANGELOG.md](https://github.com/un-def/lua-buffet/b
 
 #### `ngx.socket.udp`
 
-...
+  * [ ] constructor
+  * [ ] `:setpeername`
+  * [ ] `:send`
+  * [ ] `:receive`
+  * [ ] `:close`
+  * [ ] `:settimeout`
 
 ### LuaSocket
 

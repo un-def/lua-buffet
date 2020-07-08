@@ -2,7 +2,7 @@
 
 ## 0.2.0
 
-### Features:
+### Features
 
   * [buffet.resty] The Lua Nginx Module/OpenResty flavor of the socket interface is now fully implemented:
     - Add `send` method
@@ -17,7 +17,7 @@
       + `getreusedtimes`
   * [buffet] Add `get_send_buffer` and `get_sent_data` functions for accessing the send buffer.
 
-### Improvements:
+### Improvements
 
   * [buffet.resty] Improve compatibility of the Lua Nginx Module/OpenResty flavor:
     - `receive('*a')` does not close the buffet
